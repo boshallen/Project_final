@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="./js/echarts.min.js"></script>
+    <script src="./js/world.js"></script>
+    <script src="./js/vue.js"></script>
+    <link rel="stylesheet" href="./css/index.css">
+    <script src="./js/index.js"></script>
+    
+    <script src="./js/jquery.js"></script>
+    
+    <title>数据展示</title>
+</head>
+
+<body style="">
+	<div style="width: 80%;margin:0 auto;text-align: center;"><h1>图书分析可视化平台</h1></div>
+    <div id="app" style="width: 80%;margin:50px auto;">
+        <el-tabs type="border-card" style="width: 100%;" :stretch="isTrue">
+            <el-tab-pane label="图书类别分析" :tab-click="oneClick(1)"> 
+                <div id="bookCategory" style="width: 800px;height: 400px;margin: 0 auto">
+                </div>
+            </el-tab-pane>
+            <el-tab-pane label="评分最高的20本书" :tab-click="oneClick(2)">
+                <div id="top20" style="width: 1200px;height: 400px;margin: 0 auto">
+                </div>
+            </el-tab-pane>
+            <el-tab-pane label="评分最低的10本书" :tab-click="oneClick(3)">
+                <div id="low" style="width: 1200px;height: 400px;margin: 0 auto">
+                </div>
+            </el-tab-pane>
+            <el-tab-pane label="评分和评价次数的关系" :tab-click="oneClick(4)">
+                <div id="relation" style="width: 1200px;height: 400px;margin: 0 auto">
+                </div>
+            </el-tab-pane>
+             <!--  <el-tab-pane label="世界范围内图书的分布情况" :tab-click="oneClick(5)">
+             <div>
+			        <div id="country2" style="width: 1000px;height: 500px;"></div>
+			     </div>
+            </el-tab-pane> -->
+            <el-tab-pane label="出版社和出版的图书评价次数的关系" :tab-click="oneClick(6)">
+                <div id="relation2" style="width: 1200px;height: 400px;margin: 0 auto">
+                </div>
+            </el-tab-pane>
+            <el-tab-pane label="图书类型和评分的关系" :tab-click="oneClick(7)">
+                <div id="bookType" style="width: 1500px;height: 400px;margin: 0 auto">
+                </div>
+            </el-tab-pane>
+        </el-tabs>
+    </div>
+    <div style="margin: 20px auto;width: 80%;box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .04)">
+        <div id="country2" style="width: 100%;height: 500px;"></div>
+     </div>
+</body>
+</html>
+<script>
+var app = new Vue({
+	el: '#app',
+	data: {
+		isTrue: true
+	},
+	created(){
+		// this.five2()
+	},
+	methods: {
+		oneClick: function (v) {
+         
+            this.one()
+          
+            this.two()
+         
+            this.three()
+          
+            this.fore()
+        
+            this.five2()
+         
+            this.six()
+         
+            this.seven()
+		},
+        one: function(){
+             $.get('http://localhost:8088/getCategory', function (res) {
+                var bookCategoryChart = echarts.init(document.getElementById('bookCategory'));
+                            bookCategoryChart.setOption({
+                                title: {
+                                    text: '不同类别的图书所占的比重',
+                                    x: 'center'
+                                },
+                                tooltip: {
+                                    trigger: 'item',
+                                    formatter: "{a} <br/>{b} : {c} ({d}%)"
+                                },
+                                legend: {
+                                    x: 'center',
+                                    y: 'bottom',
+                                    data: []
+                                },
+                                calculable: true,
+                                series: [{
+                                    name: '图书数据分析',
+                                    type: 'pie',
+                                    radius: [30, 110],
+                                    center: ['50%', '50%'],
+                                    roseType: 'area',
+                                    data: res
+                                }]
+                            })
+             })
+        },
+        two: function(){
+            $.get('http://localhost:8088/getTopRating', function (res) {
+            var top20Chart = echarts.init(document.getElementById('top20'));
+                top20Chart.setOption({
+                    color: ['#3398DB'],
+                    tooltip : {
+                        trigger: 'axis',
+                        axisPointer : {            // 坐标轴指示器，坐标轴触发有效
+                            type : 'line'        // 默认为直线，可选为：'line' | 'shadow'
+                        }
+                    },
+                    grid: {
+                        left: '3%',
+                        right: '4%',
+                        bottom: '3%',
+                        containLabel: true
+                    },
+                    xAxis : [
+                        {
+                            type : 'category',
+                            data : res.key,
+                            axisTick: {
+                                alignWithLabel: true
+                            }
+                        }
+                    ],
+                    yAxis : [
+                        {
+                            type : 'value'
+                        }
+                    ],
+                    series : [
+                        {
+                            name:'评分',
+                            type:'bar',
+                            barWidth: '60%',
+                            data:res.val
+                        }
+                    ]
+                });
+        });
+        },
+        three: function(){
+             $.get('http://localhost:8088/getLowRating', function (res) {
+                       
+                        var top20Chart = echarts.init(document.getElementById('low'));
+                            top20Chart.setOption({
+                                color: ['#3398DB'],
+                                tooltip : {
+                                    trigger: 'axis',
+                                    axisPointer : {            // 坐标轴指示器，坐标轴触发有效
+                                        type : 'line'        // 默认为直线，可选为：'line' | 'shadow'
+                                    }
+                                },
+                                grid: {
+                                    left: '3%',
+                                    right: '4%',
+                                    bottom: '3%',
+                                    containLabel: true
+                                },
+                                xAxis : [
+                                    {
+                                        type : 'category',
+                                        data : res.key,
+                                        axisTick: {
+                                            alignWithLabel: true
+                                        }
+                                    }
+                                ],
+                                yAxis : [
+                                    {
+                                        type : 'value'
+                                    }
+                                ],
+                                series : [
+                                    {
+                                        name:'评分',
+                                        type:'bar',
+                                        barWidth: '60%',
+                                        data:res.val
+                                    }
+                                ]
+                            });
+                    });
+        },
+        fore: function(){
+            
+            $.get('http://localhost:8088/getComment', function (res) {
+                var relationChart = echarts.init(document.getElementById('relation'));
+                relationChart.setOption({
+                    title : {
+                        text: '从分布情况来看，图书评论人数2w+以上，评分大部分集中在7.5~9.0评分之间',
+                        subtext: '',
+                        x:'center'
+                    },
+                    xAxis: {
+                        name: '评价次数',
+                         
+                    },
+                    yAxis: {
+                        name: '评分',
+                    },
+                    series: [{
+                        symbolSize: 20,
+                        data: res,
+                    type: 'scatter'
+                }]
+                })     
+            });
+        },
+        five2: function(){
+        	$.get('http://localhost:8088/getCountry', function (res) {
+        		// ---------------------------------------------------------------------------------
+           var myChart = echarts.init(document.getElementById('country2'));  
+		        option = {  
+		            title: {  
+		                text: '所分析图书在世界范围的分布情况',
+		                sublink: 'http://esa.un.org/wpp/Excel-Data/population.htm',  
+		                left: 'center',  
+		                top: 'top'  
+		            },  
+		            visualMap: {  
+		                min: 0,  
+		                max: 80000,  
+		                text:['High','Low'],  
+		                realtime: false,  
+		                calculable: true,  
+		                color: ['orangered','yellow','lightskyblue']  
+		            },  
+		            series: [  
+		                {  
+		                    name: 'World Population (2010)',  
+		                    type: 'map',  
+		                    mapType: 'world',  
+		                    roam: true,  
+		                    itemStyle:{  
+		                        emphasis:{label:{show:true}}  
+		                    },  
+		                    data: res
+		                }  
+		            ]  
+		        };  
+        myChart.setOption(option);
+           // --------------------------------------------------------------------------------
+       });
+           
+        
+        },
+        six: function(){
+			$.get('http://localhost:8088/getPublishingHouse', function (res) {
+				var relationChart = echarts.init(document.getElementById('relation2'));
+                relationChart.setOption({
+				                   tooltip: {
+				        trigger: 'item',
+				        formatter: "{a} <br/>{b}: {c} ({d}%)"
+				    },
+				    legend: {
+				        orient: 'vertical',
+				        x: 'left',
+				        data:res.key
+				    },
+				     title : {
+                        text: '分析被评价次数超过800次的出版社',
+                        subtext: '',
+                        x:'center'
+                    },
+				    series: [
+				        {
+				            name:'所出版的书被评价次数',
+				            type:'pie',
+				            radius: ['50%', '70%'],
+				            avoidLabelOverlap: false,
+				            label: {
+				                normal: {
+				                    show: false,
+				                    position: 'center'
+				                },
+				                emphasis: {
+				                    show: true,
+				                    textStyle: {
+				                        fontSize: '30',
+				                        fontWeight: 'bold'
+				                    }
+				                }
+				            },
+				            labelLine: {
+				                normal: {
+				                    show: false
+				                }
+				            },
+				            data: res.val
+				        }
+				    ]   
+            	});
+			})
+        },
+        seven: function(){
+			$.get('http://localhost:8088/getBookTypeAndRating', function (res) {
+				var bookTypeChart = echarts.init(document.getElementById('bookType'));
+				bookTypeChart.setOption({
+					title: {
+				        text: '某一图书类型的平均评分'
+				    },
+				    tooltip: {
+				        trigger: 'axis'
+				    },
+				    grid: {
+				        left: '3%',
+				        right: '4%',
+				        bottom: '3%',
+				        containLabel: true
+				    },
+				    toolbox: {
+				        feature: {
+				            saveAsImage: {}
+				        }
+				    },
+				    xAxis: {
+				        type: 'category',
+				        boundaryGap: false,
+				        data: res.key
+				    },
+				    yAxis: {
+				        type: 'value'
+				    },
+				    series: [
+				        {
+				            name:'平均评分',
+				            type:'line',
+				            data:res.val
+				        }
+				    ]	 
+				})
+			})	
+		}
+	}
+})
+</script>
